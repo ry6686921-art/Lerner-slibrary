@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agniveer Vayu - Ultimate CBT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js" onload="renderMath()"></script>
+
+<style>
+  :root {
+    --primary: #0a3d62; --secondary: #576574; --success: #10ac84;
+    --danger: #ee5253; --purple: #5f27cd; --bg: #f1f2f6;
+  }
+  body{ font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); margin:0; overflow-x: hidden; }
+  .hidden{display:none} .center{text-align:center}
+  
+  /* Layout Structure */
+  .header{ background: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #feca57; position: sticky; top:0; z-index: 100;}
+  .main-layout { display: flex; max-width: 1400px; margin: auto; gap: 20px; padding: 20px; }
+  .question-area { flex: 3; } 
+  .sidebar { flex: 1; min-width: 300px; position: sticky; top: 80px; height: fit-content; } 
+
+  /* Mobile Responsive Fix */
+  @media (max-width: 900px) {
+    .main-layout { flex-direction: column; padding: 10px; }
+    .sidebar { position: static; width: 100%; min-width: unset; order: 2; }
+    .question-area { width: 100%; order: 1; }
+    .header { padding: 10px; font-size: 13px; }
+    .timer { font-size: 15px; padding: 4px 8px; }
+    .q-text { font-size: 18px; }
+    .palette-grid { grid-template-columns: repeat(6, 1fr); }
+  }
+
+  /* Components */
+  .timer{ background: #fff; color: var(--danger); padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 18px; border: 2px solid var(--danger); }
+  .card{ background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #ddd; margin-bottom: 20px;}
+  
+  /* Question Styles */
+  .q-num-label { font-size: 14px; color: var(--secondary); margin-bottom: 8px; font-weight: bold; }
+  .q-text { font-size: 20px; font-weight: 600; color: var(--primary); line-height: 1.4; margin-bottom: 20px; }
+  .q-image { max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; display: block; margin-left: auto; margin-right: auto;}
+  .option{ display:block; width:100%; margin:10px 0; padding:15px; border:2px solid #e9ecef; border-radius:6px; cursor:pointer; font-size: 16px; transition: 0.2s; box-sizing: border-box;}
+  .option:hover{ border-color: var(--primary); background: #f8f9fa; }
+  .option.selected{ background: #e3f2fd; border-color: var(--primary); color: var(--primary); font-weight: bold;}
+  .option.correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724 !important; }
+  .option.wrong { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24 !important; }
+
+  /* Palette Sidebar */
+  .section-label { font-size: 12px; background: #eee; padding: 4px 8px; border-radius: 4px; color: #555; margin-top: 15px; margin-bottom: 5px; font-weight: bold; }
+  .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .palette-btn{ 
+    aspect-ratio: 1/1; border: 1px solid #adb5bd; background:#fff; color: #333 !important; 
+    border-radius:4px; cursor:pointer; font-weight:bold; font-size: 14px; transition: 0.2s; 
+    display: flex; align-items: center; justify-content: center;
+  }
+  .palette-btn.attempted{background:var(--success) !important; color:#fff !important; border-color:var(--success)}
+  .palette-btn.marked{border:3px solid var(--purple) !important; color: var(--purple) !important;}
+  .palette-btn.current{background:var(--primary) !important; color:#fff !important; transform: scale(1.05);}
+
+  /* General UI */
+  .logo{max-height:80px; margin-bottom:10px; display: block; margin-left: auto; margin-right: auto;}
+  button{ padding:12px 18px; border:none; border-radius:4px; cursor:pointer; background:var(--primary); color:#fff; font-weight: 600; text-transform: uppercase; margin: 5px; }
+  button.secondary{ background: var(--secondary); }
+  button.danger{ background: var(--danger); }
+  button.success{ background: var(--success); }
+  button.purple{ background: var(--purple); }
+  input, select, textarea { padding:12px; margin:8px 0; width:100%; border-radius:4px; border:1px solid #ccc; box-sizing: border-box; }
+</style>
+</head>
+
+<body>
+
+<div id="examHeader" class="header hidden">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <img id="examLogo" style="max-height:40px; background:#fff; padding:2px; border-radius:3px;" class="hidden">
+        <span id="candDisplay" style="font-size:12px; font-weight:bold;"></span>
+    </div>
+    <div class="timer" id="timer">30:00</div>
+</div>
+
+<div class="container">
+
+  <div id="home" class="card center" style="margin: 50px auto; max-width: 600px;">
+    <img id="homeLogo" class="logo hidden">
+    <h1>🇮🇳 Agniveer Vayu Ultimate</h1>
+    <p style="color:var(--secondary); font-weight:bold;">ROHIT SIR – MOCK SPECIALIST</p>
+    <div id="offlineAlert" style="color:var(--danger); font-size:12px; font-weight:bold;" class="hidden">⚠️ Pending Results Found. Syncing...</div>
+    <button style="padding: 15px 30px;" onclick="show('studentLogin')">▶ Start Candidate Login</button>
+    <br><br>
+    <button class="secondary" onclick="show('adminLogin')">🔐 Admin Console</button>
+  </div>
+
+  <div id="studentLogin" class="hidden card" style="margin: 50px auto; max-width: 400px;">
+    <h2 class="center">Candidate Login</h2>
+    <input id="sname" placeholder="Full Name">
+    <input id="sphone" placeholder="Phone Number">
+    <button class="success" style="width:100%" onclick="startExam()">Authenticate & Start</button>
+    <button class="secondary" style="width:100%" onclick="show('home')">Back</button>
+  </div>
+
+  <div id="adminLogin" class="hidden card" style="margin: 50px auto; max-width: 400px;">
+    <h2 class="center">Admin Login</h2>
+    <input id="auser" placeholder="Username" value="admin">
+    <input id="apass" type="password" placeholder="Password">
+    <button style="width:100%" onclick="adminLogin()">Login</button>
+    <button class="secondary" style="width:100%" onclick="show('home')">Back</button>
+  </div>
+
+  <div id="adminPanel" class="hidden card" style="margin: 20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap;">
+        <h2>Admin Dashboard</h2>
+        <button class="danger" onclick="location.reload()">Logout</button>
+    </div>
+    <div class="center" style="margin: 10px 0;">
+        <button class="secondary" onclick="toggleAdminTab('qTab')">Questions</button>
+        <button class="secondary" onclick="toggleAdminTab('sTab')">Students</button>
+        <button class="secondary" onclick="toggleAdminTab('logoTab')">Settings</button>
+    </div>
+
+    <div id="qTab">
+        <div style="background:#f0f4f8; padding:15px; border-radius:8px; border:1px dashed var(--primary); margin:15px 0;">
+            <h4>Bulk Import (CSV)</h4>
+            <input type="file" accept=".csv" onchange="importCSV(this)">
+        </div>
+        <h4>Add Single Question</h4>
+        <input id="qSection" placeholder="Section (e.g. Physics)">
+        <textarea id="qtext" placeholder="Question Text (Use $$ for math)"></textarea>
+        <input id="qImg" placeholder="Image URL (optional)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <input id="o1" placeholder="Option A"> <input id="o2" placeholder="Option B">
+          <input id="o3" placeholder="Option C"> <input id="o4" placeholder="Option D">
+        </div>
+        Correct: <select id="correct"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+        <button class="success" onclick="saveQuestion()">Save Question</button>
+        <div id="qlist" style="max-height:250px; overflow-y:auto; border:1px solid #ddd; margin-top:20px; padding:10px;"></div>
+    </div>
+
+    <div id="sTab" class="hidden">
+        <h4>Register Student</h4>
+        <input id="regName" placeholder="Name"> <input id="regPhone" placeholder="Phone">
+        <button onclick="addStudent()">Add</button>
+        <div id="studentList"></div>
+    </div>
+
+    <div id="logoTab" class="hidden">
+        <h4>Exam Duration (NEW FEATURE)</h4>
+        <input id="examDurationInput" type="number" placeholder="Enter time in Minutes (e.g. 45)">
+        <button class="success" onclick="updateDuration()">Update Exam Time</button>
+        <hr>
+        <h4>Security</h4>
+        <input id="newPass" type="password" placeholder="New Admin Password">
+        <button onclick="changePass()">Update Password</button>
+        <hr>
+        <h4>Branding</h4>
+        <input type="file" onchange="uploadLogo(this)">
+        <button class="danger" onclick="localStorage.removeItem('logo'); location.reload();">Reset Logo</button>
+    </div>
+  </div>
+
+  <div id="exam" class="hidden">
+    <div class="main-layout">
+        <div class="question-area">
+            <div class="card">
+                <div id="qContainer"></div>
+                <div style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;" class="center">
+                    <button class="secondary" onclick="prevQ()">⬅ Previous</button>
+                    <button class="purple" onclick="toggleMark()">📌 Mark</button>
+                    <button onclick="nextQ()">Save & Next ➡</button>
+                </div>
+            </div>
+            <div class="center">
+                <button class="danger" id="finalSubmitBtn" style="padding:15px 30px;" onclick="confirmSubmit()">Final Submit Exam</button>
+                <button id="exitReviewBtn" class="success hidden" style="padding:15px 30px;" onclick="exitReview()">✅ Exit Review</button>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="card" style="padding:15px;">
+                <h4 style="margin:0 0 10px 0; color:var(--primary);">Question Palette</h4>
+                <div id="palette"></div>
+                <div style="margin-top:20px; background:#f9f9f9; padding:10px; border-radius:5px; font-size:12px;">
+                    <div><span style="display:inline-block; width:10px; height:10px; background:#fff; border:1px solid #ccc;"></span> Unvisited</div>
+                    <div><span style="display:inline-block; width:10px; height:10px; background:var(--success);"></span> Answered</div>
+                    <div><span style="display:inline-block; width:10px; height:10px; border:2px solid var(--purple);"></span> Marked</div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="result" class="hidden card center" style="margin: 40px auto; max-width: 600px;">
+    <img id="resultLogo" class="logo hidden">
+    <div id="resultUI"></div>
+  </div>
+
+</div>
+
+<script>
+const DATABASE_URL = "https://script.google.com/macros/s/AKfycbxxArGG03aIg7uoBCCUWi3yb-QOCmRQtYieH5a9WnBCPdrURjWjtFyYuyAJtDV0zdLpmg/exec";
+let questions = [], students = [], answers = {}, marked = {}, cur = 0;
+let time = 1800, timerInt, studentName = "", studentPhone = "", reviewMode = false;
+
+window.onload = () => {
+  let q = localStorage.getItem("questions"); if(q) questions = JSON.parse(q);
+  let s = localStorage.getItem("students"); if(s) students = JSON.parse(s);
+  let l = localStorage.getItem("logo"); if(l) applyLogo(l);
+  
+  // Load custom exam time if set
+  let savedDuration = localStorage.getItem("examDuration");
+  if(savedDuration) time = parseInt(savedDuration) * 60;
+
+  checkOfflineQueue(); renderQList(); renderStudentList();
+};
+
+function updateDuration() {
+  let val = document.getElementById("examDurationInput").value;
+  if(val > 0) {
+    localStorage.setItem("examDuration", val);
+    time = val * 60;
+    alert("Exam duration successfully updated to " + val + " minutes.");
+  } else {
+    alert("Please enter a valid number of minutes.");
+  }
+}
+
+function renderMath() { if(window.renderMathInElement) renderMathInElement(document.body, { delimiters: [{left: "$$", right: "$$", display: true}] }); }
+function adminLogin() { if(apass.value === (localStorage.getItem("adminPass") || "admin123")) show('adminPanel'); else alert("Denied"); }
+function changePass() { if(newPass.value) { localStorage.setItem("adminPass", newPass.value); alert("Success"); } }
+
+function startExam() {
+  let user = students.find(s => s.name.toLowerCase() === sname.value.trim().toLowerCase() && s.phone === sphone.value.trim());
+  if(!user) return alert("Not registered");
+  let saved = localStorage.getItem("examState");
+  if(saved) {
+    let st = JSON.parse(saved);
+    if(st.studentName === user.name && confirm("Resume previous session?")) { answers = st.answers; marked = st.marked; cur = st.cur; time = st.time; }
+  }
+  studentName = user.name; studentPhone = user.phone;
+  document.getElementById('candDisplay').innerText = `CANDIDATE: ${studentName.toUpperCase()}`;
+  document.getElementById('examHeader').classList.remove('hidden');
+  show('exam'); buildPalette(); loadQ(cur); startTimer();
+}
+
+function buildPalette() {
+  palette.innerHTML = "";
+  let secs = {}; questions.forEach((q, i) => { let s = q.section || "General"; if(!secs[s]) secs[s] = []; secs[s].push(i); });
+  for(let s in secs) {
+    let l = document.createElement("div"); l.className = "section-label"; l.innerText = s.toUpperCase(); palette.appendChild(l);
+    let g = document.createElement("div"); g.className = "palette-grid";
+    secs[s].forEach(i => {
+      let b = document.createElement("button"); b.innerText = i + 1; b.className = "palette-btn";
+      if(answers[i] != null) b.classList.add("attempted");
+      if(marked[i]) b.classList.add("marked");
+      if(cur === i) b.classList.add("current");
+      b.onclick = () => loadQ(i); g.appendChild(b);
+    });
+    palette.appendChild(g);
+  }
+}
+
+function loadQ(i) {
+  cur = i; buildPalette(); saveState();
+  let q = questions[i];
+  let img = q.img ? `<img src="${q.img}" class="q-image">` : "";
+  let html = `<div class="q-num-label">QUESTION NO. ${i+1} [${q.section || 'General'}]</div>${img}<div class="q-text">${q.text}</div>`;
+  q.options.forEach((opt, idx) => {
+    let cls = "option";
+    if(answers[i] === idx) cls += " selected";
+    if(reviewMode) { if(idx === q.correct) cls += " correct"; else if(answers[i] === idx) cls += " wrong"; }
+    html += `<div class="${cls}" onclick="selectA(${idx})"><b>${String.fromCharCode(65+idx)}.</b> ${opt}</div>`;
+  });
+  qContainer.innerHTML = html; renderMath();
+}
+
+function selectA(idx) { if(!reviewMode) { answers[cur] = idx; loadQ(cur); } }
+function toggleMark() { if(!reviewMode) { marked[cur] = !marked[cur]; buildPalette(); } }
+function nextQ() { if(cur < questions.length-1) loadQ(cur+1); }
+function prevQ() { if(cur > 0) loadQ(cur-1); }
+function saveState() { if(studentName) localStorage.setItem("examState", JSON.stringify({ answers, marked, cur, time, studentName, studentPhone })); }
+
+async function submitTest() {
+  clearInterval(timerInt); document.getElementById('examHeader').classList.add('hidden'); localStorage.removeItem("examState"); show('result');
+  let score = 0, c = 0, w = 0;
+  questions.forEach((q, i) => { if(answers[i] == q.correct) { score++; c++; } else if(answers[i] != null) { score -= 0.25; w++; } });
+  const payload = { name: studentName, phone: studentPhone, score: score.toFixed(2), correct: c, wrong: w, total: questions.length };
+  try { await fetch(DATABASE_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }); resultUI.innerHTML = `<h2 style="color:var(--success)">✅ SYNCED TO CLOUD</h2>`; }
+  catch(e) { let q = JSON.parse(localStorage.getItem("offlineQueue") || "[]"); q.push(payload); localStorage.setItem("offlineQueue", JSON.stringify(q)); resultUI.innerHTML = `<h2 style="color:var(--danger)">⚠️ SAVED LOCALLY (OFFLINE)</h2>`; }
+  resultUI.innerHTML += `<p><b>Candidate:</b> ${studentName}</p><div style="font-size:36px; font-weight:bold; margin:20px 0;">Marks: ${score.toFixed(2)}</div><button class="purple" onclick="reviewAnswers()">📘 Review</button><button class="success" onclick="window.print()">🖨 Print</button><button class="secondary" onclick="location.reload()">Home</button>`;
+}
+
+function checkOfflineQueue() {
+  let q = JSON.parse(localStorage.getItem("offlineQueue") || "[]");
+  if(q.length > 0) { offlineAlert.classList.remove("hidden"); if(navigator.onLine) { q.forEach(async (d, i) => { try { await fetch(DATABASE_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(d) }); q.splice(i, 1); localStorage.setItem("offlineQueue", JSON.stringify(q)); if(q.length === 0) offlineAlert.classList.add("hidden"); } catch(e){} }); } }
+}
+
+function saveQuestion() { questions.push({ section: qSection.value, text: qtext.value, img: qImg.value, options: [o1.value, o2.value, o3.value, o4.value], correct: parseInt(correct.value) }); localStorage.setItem("questions", JSON.stringify(questions)); renderQList(); qtext.value=o1.value=o2.value=o3.value=o4.value=qImg.value=""; }
+function importCSV(input) { let r = new FileReader(); r.onload = (e) => { e.target.result.split('\n').forEach((l, i) => { if(i === 0 || l.length < 5) return; let p = l.split(','); if(p.length >= 6) questions.push({text:p[0].trim(), options:[p[1].trim(),p[2].trim(),p[3].trim(),p[4].trim()], correct:parseInt(p[5]), section: p[6] ? p[6].trim() : "General"}); }); localStorage.setItem("questions", JSON.stringify(questions)); renderQList(); }; r.readAsText(input.files[0]); }
+function startTimer() { timerInt = setInterval(() => { let m = Math.floor(time/60), s = time%60; timer.innerText = `${m}:${s.toString().padStart(2,'0')}`; if(--time < 0) submitTest(); if(time%10 === 0) saveState(); }, 1000); }
+function confirmSubmit() { if(confirm("Submit?")) submitTest(); }
+function reviewAnswers(){ reviewMode=true; show('exam'); document.getElementById('examHeader').classList.remove('hidden'); document.getElementById('exitReviewBtn').classList.remove('hidden'); document.getElementById('finalSubmitBtn').classList.add('hidden'); timer.innerText="REVIEW"; loadQ(0); }
+function exitReview(){ reviewMode=false; document.getElementById('exitReviewBtn').classList.add('hidden'); document.getElementById('finalSubmitBtn').classList.remove('hidden'); show('result'); }
+function show(id) { document.querySelectorAll('.container > div, #exam').forEach(d => d.classList.add("hidden")); document.getElementById(id).classList.remove("hidden"); }
+function toggleAdminTab(id) { ["qTab","sTab","logoTab"].forEach(t => document.getElementById(t).classList.add("hidden")); document.getElementById(id).classList.remove("hidden"); }
+function uploadLogo(input){ let r = new FileReader(); r.onload = () => { localStorage.setItem("logo", r.result); applyLogo(r.result); }; r.readAsDataURL(input.files[0]); }
+function applyLogo(src){ ["homeLogo","examLogo","resultLogo"].forEach(id => { let img = document.getElementById(id); if(img) { img.src = src; img.classList.remove("hidden"); } }); }
+function addStudent() { students.push({name: regName.value.trim(), phone: regPhone.value.trim()}); localStorage.setItem("students", JSON.stringify(students)); regName.value = ""; regPhone.value = ""; renderStudentList(); }
+function renderStudentList(){ studentList.innerHTML = students.map((s,i) => `<div style="padding:5px; border-bottom:1px solid #eee;">${s.name} <button onclick="students.splice(${i},1); localStorage.setItem('students', JSON.stringify(students)); renderStudentList();">X</button></div>`).join(""); }
+function renderQList() { qlist.innerHTML = questions.map((q,i) => `<div style="padding:4px; border-bottom:1px solid #eee;">${i+1}. [${q.section || 'General'}] ${q.text} <button onclick="questions.splice(${i},1); localStorage.setItem('questions', JSON.stringify(questions)); renderQList();">X</button></div>`).join(""); }
+</script>
+</body>
+</html>
