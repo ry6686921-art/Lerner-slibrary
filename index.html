@@ -78,7 +78,6 @@ input{
 
 <div class="container">
 
-<!-- INSTRUCTIONS -->
 <div id="instructions" class="card center" style="max-width:700px;margin:40px auto">
   <h1>🇮🇳 Agniveer Vayu Ultimate CBT</h1>
   <h3 style="color:var(--secondary)">Rohit Sir – Mock Master</h3>
@@ -91,7 +90,6 @@ input{
   <button onclick="show('login')">Proceed to Login</button>
 </div>
 
-<!-- LOGIN -->
 <div id="login" class="card hidden" style="max-width:420px;margin:60px auto">
   <h2 class="center">Candidate Login</h2>
   <p class="center" style="color:#666">Enter registered details</p>
@@ -100,7 +98,6 @@ input{
   <button class="success" style="width:100%" onclick="startExam()">Start Examination</button>
 </div>
 
-<!-- EXAM -->
 <div id="exam" class="hidden">
   <div style="display:flex;gap:15px;flex-wrap:wrap">
     <div style="flex:3">
@@ -125,7 +122,6 @@ input{
   </div>
 </div>
 
-<!-- RESULT -->
 <div id="result" class="card hidden center" style="max-width:700px;margin:40px auto">
   <div id="resultUI"></div>
 </div>
@@ -133,16 +129,24 @@ input{
 </div>
 
 <script>
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzJP4bi59sJRO4rguqfU9sbT8HRpcmV6QtbGLqoHUti9eFHty_ByT_FbrFq-XT-BcQO1w/exec";
+const SCRIPT_URL="YOUR_APPS_SCRIPT_WEBAPP_URL";
 
 let questions=[],students=[],answers={},marked={},cur=0;
-let time=1800,timerInt,startTime;
+let time, timerInt, startTime, initialTime=1800; // time is now dynamic
 let studentName="",studentPhone="",review=false;
 let resultSaved=false;
 
 window.onload=async()=>{
-  questions=await (await fetch(SCRIPT_URL+"?action=getQuestions")).json();
-  students=await (await fetch(SCRIPT_URL+"?action=getStudents")).json();
+  const [qRes, sRes, setRes] = await Promise.all([
+    fetch(SCRIPT_URL+"?action=getQuestions"),
+    fetch(SCRIPT_URL+"?action=getStudents"),
+    fetch(SCRIPT_URL+"?action=getSettings")
+  ]);
+  questions = await qRes.json();
+  students = await sRes.json();
+  const settings = await setRes.json();
+  initialTime = (settings.time || 30) * 60; // Fetches time from Cloud Settings
+  time = initialTime;
 };
 
 function startExam(){
@@ -240,7 +244,7 @@ function enterReview(){
 function exitReview(){
   review=false;
   clearInterval(timerInt);
-  answers={}; marked={}; cur=0; time=1800;
+  answers={}; marked={}; cur=0; time=initialTime;
   examHeader.classList.add("hidden");
   submitBtn.classList.remove("hidden");
   exitReviewBtn.classList.add("hidden");
