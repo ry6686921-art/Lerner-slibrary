@@ -7,61 +7,48 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js"
-onload="renderMath()"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js" onload="renderMath()"></script>
 
 <style>
 :root{
  --primary:#0a3d62;--secondary:#576574;--success:#10ac84;
  --danger:#ee5253;--purple:#5f27cd;--warning:#f39c12;--bg:#f1f2f6;
 }
-body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);margin:0}
-.hidden{display:none}.center{text-align:center}
 
+/* SECURITY: Disable selection */
+body {
+  font-family:'Segoe UI',Tahoma,sans-serif; background:var(--bg); margin:0;
+  -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+}
+
+/* BRAND WATERMARK */
+.watermark {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 6vw; color: rgba(0,0,0,0.05); font-weight: 900;
+  pointer-events: none; z-index: 9999; white-space: nowrap; text-transform: uppercase;
+  text-align: center; line-height: 1;
+}
+
+.hidden{display:none}.center{text-align:center}
 .header{
  background:var(--primary);color:#fff;padding:10px 20px;
  display:flex;justify-content:space-between;align-items:center;
  border-bottom:3px solid #feca57;position:sticky;top:0;z-index:100
 }
-.timer{
- background:#fff;color:var(--danger);padding:5px 12px;
- border-radius:4px;font-weight:bold;border:2px solid var(--danger)
-}
-
-.card{
- background:#fff;padding:30px;border-radius:10px;
- box-shadow:0 6px 20px rgba(0,0,0,0.08);
- border:1px solid #ddd;margin-bottom:20px
-}
-
-button{
- padding:12px 18px;border:none;border-radius:6px;
- cursor:pointer;background:var(--primary);color:#fff;
- font-weight:600;margin:5px
-}
+.timer{background:#fff;color:var(--danger);padding:5px 12px;border-radius:4px;font-weight:bold;border:2px solid var(--danger)}
+.card{background:#fff;padding:30px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.08);border:1px solid #ddd;margin-bottom:20px}
+button{padding:12px 18px;border:none;border-radius:6px;cursor:pointer;background:var(--primary);color:#fff;font-weight:600;margin:5px}
 button.secondary{background:var(--secondary)}
 button.success{background:var(--success)}
 button.danger{background:var(--danger)}
 button.purple{background:var(--purple)}
 button.warning{background:var(--warning)}
-
-input{
- padding:14px;margin:10px 0;width:100%;
- border-radius:6px;border:1px solid #ccc;font-size:15px
-}
-
-.option{
- display:block;width:100%;margin:10px 0;padding:15px;
- border:2px solid #e9ecef;border-radius:6px;cursor:pointer
-}
+input{padding:14px;margin:10px 0;width:100%;border-radius:6px;border:1px solid #ccc;font-size:15px}
+.option{display:block;width:100%;margin:10px 0;padding:15px;border:2px solid #e9ecef;border-radius:6px;cursor:pointer}
 .option.selected{background:#e3f2fd;border-color:var(--primary);font-weight:bold}
 .option.correct{background:#d4edda!important;border-color:#28a745}
 .option.wrong{background:#f8d7da!important;border-color:#dc3545}
-
-.palette-btn{
- width:40px;height:40px;margin:4px;border-radius:6px;
- border:1px solid #bbb;font-weight:bold;background:#eee;color:#333
-}
+.palette-btn{width:40px;height:40px;margin:4px;border-radius:6px;border:1px solid #bbb;font-weight:bold;background:#eee;color:#333}
 .p-current{background:#3498db;color:#fff}
 .p-attempted{background:#2ecc71;color:#fff}
 .p-marked{border:3px solid var(--purple)}
@@ -69,14 +56,16 @@ input{
 </style>
 </head>
 
-<body>
+<body oncontextmenu="return false" ondragstart="return false">
+
+<div class="watermark" id="brandMark">ROHIT SIR</div>
 
 <div id="examHeader" class="header hidden">
   <b id="candDisplay"></b>
   <div class="timer" id="timer">00:00</div>
 </div>
 
-<div class="container">
+<div class="container" style="position: relative; z-index: 1;">
 
 <div id="instructions" class="card center" style="max-width:700px;margin:40px auto">
   <h1>🇮🇳 Agniveer Vayu Ultimate CBT</h1>
@@ -112,7 +101,6 @@ input{
         </div>
       </div>
     </div>
-
     <div style="flex:1">
       <div class="card">
         <h4>Question Palette</h4>
@@ -132,9 +120,21 @@ input{
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwGCcxh5hD0uQWhm7vs83A-taQJVW-gNuvml56tvyEndii5Gwd3pBxmhqMcAUSuWrBW2Q/exec";
 
 let questions=[],students=[],answers={},marked={},cur=0;
-let time, timerInt, startTime, initialTime=1800; // time is now dynamic
+let time, timerInt, startTime, initialTime=1800;
 let studentName="",studentPhone="",review=false;
 let resultSaved=false;
+
+/* --- SECURITY LAYER --- */
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && (e.key==='u'||e.key==='c'||e.key==='v'||e.key==='s'||e.key==='p')) e.preventDefault();
+  if (e.keyCode === 123) e.preventDefault(); 
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && !resultSaved && studentName !== "") {
+    alert("Warning: Tab switching is monitored.");
+  }
+});
 
 window.onload=async()=>{
   const [qRes, sRes, setRes] = await Promise.all([
@@ -145,16 +145,20 @@ window.onload=async()=>{
   questions = await qRes.json();
   students = await sRes.json();
   const settings = await setRes.json();
-  initialTime = (settings.time || 30) * 60; // Fetches time from Cloud Settings
+  initialTime = (settings.time || 30) * 60;
   time = initialTime;
 };
 
 function startExam(){
-  let u=students.find(s=>s.name.toLowerCase()==sname.value.toLowerCase()
-    && s.phone==sphone.value);
+  let u=students.find(s=>s.name.toLowerCase()==sname.value.toLowerCase().trim()
+    && s.phone==sphone.value.trim());
   if(!u) return alert("Not registered");
 
   studentName=u.name;studentPhone=u.phone;
+  
+  /* Update Watermark with Phone to Deter Photos */
+  brandMark.innerHTML = `ROHIT SIR<br><span style="font-size:2vw">${studentPhone}</span>`;
+  
   candDisplay.innerText="CANDIDATE: "+studentName;
   show("exam");examHeader.classList.remove("hidden");
   startTime=Date.now();
@@ -165,6 +169,8 @@ function loadQ(i){
   cur=i;buildPalette();
   let q=questions[i];
   let h=`<h3>Q${i+1}. ${q.text}</h3>`;
+  if(q.img) h += `<img src="${q.img}" style="max-width:100%;"><br>`;
+  
   q.options.forEach((o,j)=>{
     let c="option";
     if(answers[i]==j)c+=" selected";
@@ -261,6 +267,5 @@ function renderMath(){
     renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true}]});
 }
 </script>
-
 </body>
 </html>
