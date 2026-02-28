@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Learner's Adda – Ultimate CBT</title>
+<title>Agniveer Vayu – Ultimate CBT</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
@@ -14,21 +14,16 @@
  --primary:#0a3d62;--secondary:#576574;--success:#10ac84;
  --danger:#ee5253;--purple:#5f27cd;--warning:#f39c12;--bg:#f1f2f6;
 }
-
-/* SECURITY: Disable selection */
 body {
   font-family:'Segoe UI',Tahoma,sans-serif; background:var(--bg); margin:0;
   -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
 }
-
-/* BRAND WATERMARK */
 .watermark {
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg);
   font-size: 6vw; color: rgba(0,0,0,0.05); font-weight: 900;
   pointer-events: none; z-index: 9999; white-space: nowrap; text-transform: uppercase;
   text-align: center; line-height: 1;
 }
-
 .hidden{display:none}.center{text-align:center}
 .header{
  background:var(--primary);color:#fff;padding:10px 20px;
@@ -53,6 +48,12 @@ input{padding:14px;margin:10px 0;width:100%;border-radius:6px;border:1px solid #
 .p-attempted{background:#2ecc71;color:#fff}
 .p-marked{border:3px solid var(--purple)}
 .p-marked-attempted{background:var(--warning);color:#fff;border:3px solid var(--purple)}
+
+/* Insight Styling */
+.insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+.insight-box { padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 5px solid var(--primary); }
+.insight-box h4 { margin: 0; color: var(--secondary); font-size: 0.9em; }
+.insight-box p { margin: 5px 0 0; font-size: 1.4em; font-weight: bold; color: var(--primary); }
 </style>
 </head>
 
@@ -68,20 +69,19 @@ input{padding:14px;margin:10px 0;width:100%;border-radius:6px;border:1px solid #
 <div class="container" style="position: relative; z-index: 1;">
 
 <div id="instructions" class="card center" style="max-width:700px;margin:40px auto">
-  <h1>🇮🇳 Learner's Adda: Ultimate CBT</h1>
-  <h3 style="color:var(--secondary)"> By Rohit Sir – Mock Master</h3>
+  <h1>🇮🇳 Rohit Sir – CBT Master</h1>
+  <h3 style="color:var(--secondary)">Quality Coaching, Superior Testing</h3>
   <hr>
   <ul style="text-align:left">
     <li>+1 for correct, −0.25 for wrong</li>
-    <li>Mark questions for review</li>
-    <li>Do not refresh during exam</li>
+    <li>Mark questions for review using the 📌 Mark button</li>
+    <li>Tab switching and right-clicks are strictly prohibited</li>
   </ul>
   <button onclick="show('login')">Proceed to Login</button>
 </div>
 
 <div id="login" class="card hidden" style="max-width:420px;margin:60px auto">
   <h2 class="center">Candidate Login</h2>
-  <p class="center" style="color:#666">Enter registered details</p>
   <input id="sname" placeholder="👤 Full Name">
   <input id="sphone" placeholder="📱 Phone Number">
   <button class="success" style="width:100%" onclick="startExam()">Start Examination</button>
@@ -97,7 +97,7 @@ input{padding:14px;margin:10px 0;width:100%;border-radius:6px;border:1px solid #
           <button class="purple" onclick="toggleMark()">📌 Mark</button>
           <button onclick="nextQ()">Save & Next ➡</button>
           <button class="danger" id="submitBtn" onclick="confirmSubmit()">Final Submit</button>
-          <button class="secondary hidden" id="exitReviewBtn" onclick="exitReview()">Exit Review</button>
+          <button class="secondary hidden" id="exitReviewBtn" onclick="location.reload()">Exit to Home</button>
         </div>
       </div>
     </div>
@@ -124,7 +124,6 @@ let time, timerInt, startTime, initialTime=1800;
 let studentName="",studentPhone="",review=false;
 let resultSaved=false;
 
-/* --- SECURITY LAYER --- */
 document.addEventListener('keydown', e => {
   if (e.ctrlKey && (e.key==='u'||e.key==='c'||e.key==='v'||e.key==='s'||e.key==='p')) e.preventDefault();
   if (e.keyCode === 123) e.preventDefault(); 
@@ -132,7 +131,7 @@ document.addEventListener('keydown', e => {
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && !resultSaved && studentName !== "") {
-    alert("Warning: Tab switching is monitored.");
+    alert("Warning: Unauthorized tab switching! This activity is logged.");
   }
 });
 
@@ -152,13 +151,9 @@ window.onload=async()=>{
 function startExam(){
   let u=students.find(s=>s.name.toLowerCase()==sname.value.toLowerCase().trim()
     && s.phone==sphone.value.trim());
-  if(!u) return alert("Not registered");
-
+  if(!u) return alert("Phone number or Name not registered by Rohit Sir.");
   studentName=u.name;studentPhone=u.phone;
-  
-  /* Update Watermark with Phone to Deter Photos */
   brandMark.innerHTML = `ROHIT SIR<br><span style="font-size:2vw">${studentPhone}</span>`;
-  
   candDisplay.innerText="CANDIDATE: "+studentName;
   show("exam");examHeader.classList.remove("hidden");
   startTime=Date.now();
@@ -170,7 +165,6 @@ function loadQ(i){
   let q=questions[i];
   let h=`<h3>Q${i+1}. ${q.text}</h3>`;
   if(q.img) h += `<img src="${q.img}" style="max-width:100%;"><br>`;
-  
   q.options.forEach((o,j)=>{
     let c="option";
     if(answers[i]==j)c+=" selected";
@@ -211,50 +205,45 @@ function startTimer(){
   },1000);
 }
 
-function confirmSubmit(){if(confirm("Submit Exam?"))submit();}
+function confirmSubmit(){if(confirm("Are you sure you want to finish the exam?"))submit();}
 
 async function submit(){
   if(resultSaved) return;
   resultSaved=true;
   clearInterval(timerInt);
-
   let correct=0,wrong=0;
   questions.forEach((q,i)=>{
     if(answers[i]==q.correct)correct++;
     else if(answers[i]!=null)wrong++;
   });
-
   let score=correct-wrong*0.25;
+  let timeTakenSec = initialTime - time;
+  let tMin = Math.floor(timeTakenSec/60), tSec = timeTakenSec%60;
+  let accuracy = (correct+wrong) > 0 ? ((correct/(correct+wrong))*100).toFixed(1) : 0;
 
   await fetch(SCRIPT_URL,{method:"POST",mode:"no-cors",
-    body:JSON.stringify({name:studentName,phone:studentPhone,
-      score,correct,wrong})});
+    body:JSON.stringify({name:studentName,phone:studentPhone,score,correct,wrong})});
 
   resultUI.innerHTML=`
-    <h2>Test Submitted</h2>
-    <p><b>${studentName}</b></p>
-    <h1>${score.toFixed(2)}</h1>
+    <h2 style="color:var(--success)">Test Submitted Successfully!</h2>
+    <div class="insight-grid">
+      <div class="insight-box"><h4>Final Score</h4><p>${score.toFixed(2)}</p></div>
+      <div class="insight-box"><h4>Accuracy</h4><p>${accuracy}%</p></div>
+      <div class="insight-box"><h4>Correct/Wrong</h4><p>✅ ${correct} | ❌ ${wrong}</p></div>
+      <div class="insight-box"><h4>Time Taken</h4><p>${tMin}m ${tSec}s</p></div>
+    </div>
+    <hr>
+    <p>Would you like to review your answers or exit to the home screen?</p>
     <button class="warning" onclick="enterReview()">Review Answers</button>
+    <button class="secondary" onclick="location.reload()">Exit to Home</button>
   `;
   show("result");
 }
 
 function enterReview(){
-  review=true;
-  show("exam");
-  loadQ(0);
+  review=true; show("exam"); loadQ(0);
   submitBtn.classList.add("hidden");
   exitReviewBtn.classList.remove("hidden");
-}
-
-function exitReview(){
-  review=false;
-  clearInterval(timerInt);
-  answers={}; marked={}; cur=0; time=initialTime;
-  examHeader.classList.add("hidden");
-  submitBtn.classList.remove("hidden");
-  exitReviewBtn.classList.add("hidden");
-  show("instructions");
 }
 
 function show(id){
@@ -269,6 +258,3 @@ function renderMath(){
 </script>
 </body>
 </html>
-
-
-
